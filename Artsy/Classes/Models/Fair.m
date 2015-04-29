@@ -2,23 +2,18 @@
 #import "NSDate+DateRange.h"
 #import "ARPartnerShowFeedItem.h"
 #import "ARFileUtils.h"
+#import "ARFairNetworkModel.h"
 
 @interface Fair (){
-    ARFairShowFeed *_showsFeed;
-    ARFairOrganizerFeed *_postsFeed;
-    ARFeedTimeline *_postsFeedTimeline;
     NSMutableSet *_showsLoadedFromArchive;
 }
-
-@property (readwrite, nonatomic, strong) KSDeferred *showsDeferred;
-@property (nonatomic, copy) NSArray *maps;
 
 // Note: *must* be strong and not copy, because copy will make a non-mutable copy.
 @property (nonatomic, strong) NSMutableSet *shows;
 
 @property (nonatomic, copy) NSDictionary *imageURLs;
 @property (nonatomic, copy) NSDictionary *bannerURLs;
-
+@property (nonatomic, strong, readonly) ARFairShowFeed *showsFeed;
 
 @end
 
@@ -42,7 +37,6 @@
         // Hide these from Mantle
         //
         // This can be removed in Mantle 2.0 which won't have implicit mapping
-        @keypath(Fair.new, showsDeferred) : NSNull.null,
         @keypath(Fair.new, maps) : NSNull.null,
     };
 }
@@ -69,15 +63,16 @@
 
 - (void)getPosts:(void (^)(ARFeedTimeline *feedTimeline))success
 {
-    _postsFeed = [[ARFairOrganizerFeed alloc] initWithFairOrganizer:[self organizer]];
-    _postsFeedTimeline = [[ARFeedTimeline alloc] initWithFeed:_postsFeed];
 
-    __weak ARFeedTimeline *weakTimeline = _postsFeedTimeline;
-    [_postsFeedTimeline getNewItems:^{
-        success(weakTimeline);
-    } failure:^(NSError *error) {
+    ARFairOrganizerFeed *postsFeed = [[ARFairOrganizerFeed alloc] initWithFairOrganizer:[self organizer]];
+    ARFeedTimeline *postsFeedTimeline = [[ARFeedTimeline alloc] initWithFeed:postsFeed];
+
+    @weakify(postsFeedTimeline);
+
+    [self.networkModel getPostsForFairWithTimeline:postsFeedTimeline success:success failure:^(NSError *error) {
+        @strongify(postsFeedTimeline);
         // TODO: don't swallow error
-        success(weakTimeline);
+        success(postsFeedTimeline);
     }];
 }
 
@@ -87,23 +82,15 @@
     if (!self) { return nil; }
 
     _fairID = fairID;
+    _networkModel = [[ARFairNetworkModel alloc] init];
 
     return self;
 }
 
 - (void)updateFair:(void(^)(void))success
 {
-    @weakify(self);
-
-    [ArtsyAPI getFairInfo:self.fairID success:^(id fair) {
-        @strongify(self);
-
-        NSArray *tempMaps = self.maps;
-        [self mergeValuesForKeysFromModel:fair];
-        self.maps = tempMaps;
-
+    [self.networkModel getFairInfo:self.fairID success:^(Fair *fair) {
         success();
-
     } failure:^(NSError *error) {
         success();
     }];
@@ -111,8 +98,6 @@
 
 - (void)downloadShows
 {
-    _showsFeed = [[ARFairShowFeed alloc] initWithFair:self];
-
     @weakify(self);
 
     NSString *path = self.pathForLocalShowStorage;
@@ -153,13 +138,15 @@
 
 - (void)downloadPastShowSet
 {
+    if (!self.showsFeed ) { _showsFeed = [[ARFairShowFeed alloc] initWithFair:self]; }
+
     @weakify(self);
 
-    [_showsFeed getFeedItemsWithCursor:_showsFeed.cursor success:^(NSOrderedSet *parsed) {
+    [self.networkModel getShowFeedItems:self.showsFeed success:^(NSOrderedSet *items) {
 
         @strongify(self);
-        if(parsed.count > 0) {
-            [self addFeedItemsToShows:parsed];
+        if(items.count > 0) {
+            [self addFeedItemsToShows:items];
             [self downloadPastShowSet];
         } else {
             [self finishedDownloadingShows];
@@ -220,66 +207,17 @@
     [self didChangeValueForKey:@keypath(Fair.new, shows)];
 }
 
-- (KSPromise *)onShowsUpdate:(void (^)(NSArray *shows))success failure:(void(^)(NSError *error))failure
-{
-    @weakify(self);
-
-    if (!self.showsDeferred) {
-        self.showsDeferred = [KSDeferred defer];
-
-        [ArtsyAPI
-            getPartnerShowsForFair:self
-            success:^(NSArray *shows) {
-                @strongify(self);
-
-                [self.showsDeferred resolveWithValue:shows];
-            }
-            failure:^(NSError *error) {
-                [self.showsDeferred rejectWithError:error];
-            }];
-    }
-
-    return [self.showsDeferred.promise
-        then:^(NSArray *shows) {
-            @strongify(self);
-
-            if (success) {
-                success(shows);
-            }
-
-            return self;
-        }
-        error:^(NSError *error) {
-            if (failure) {
-                failure(error);
-            }
-
-            return error;
-        }];
-}
-
 - (void)getOrderedSets:(void (^)(NSMutableDictionary *))success
 {
-    [ArtsyAPI getOrderedSetsWithOwnerType:@"Fair" andID:self.fairID success:success failure:^(NSError *error) {
+    [self.networkModel getOrderedSetsForFair:self success:success failure:^(NSError *error) {
         success([[NSMutableDictionary alloc] init]);
     }];
 }
 
 - (void)getFairMaps:(void (^)(NSArray *))success
 {
-    @weakify(self);
-
-    [ArtsyAPI getMapInfoForFair:self success:^(NSArray *maps) {
-        @strongify(self);
-        if (!self) { return; }
-        self.maps = maps;
-        if (success) {
-            success(maps);
-        }
-    } failure:^(NSError *error) {
-        if (success) {
-            success(nil);
-        }
+    [self.networkModel getMapInfoForFair:self success:success failure:^(NSError *error) {
+        success(nil);
     }];
 }
 
