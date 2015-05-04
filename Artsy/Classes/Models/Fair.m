@@ -63,33 +63,77 @@
 
 - (void)getPosts:(void (^)(ARFeedTimeline *feedTimeline))success
 {
-
-    ARFairOrganizerFeed *postsFeed = [[ARFairOrganizerFeed alloc] initWithFairOrganizer:[self organizer]];
-    ARFeedTimeline *postsFeedTimeline = [[ARFeedTimeline alloc] initWithFeed:postsFeed];
-
-    @weakify(postsFeedTimeline);
-
-    [self.networkModel getPostsForFairWithTimeline:postsFeedTimeline success:success failure:^(NSError *error) {
-        @strongify(postsFeedTimeline);
-        // TODO: don't swallow error
-        success(postsFeedTimeline);
-    }];
+    [self.networkModel getPostsForFair:self  success:success];
 }
 
-- (instancetype)initWithFairID:(NSString *)fairID
+- (instancetype)init
 {
     self = [super init];
     if (!self) { return nil; }
 
-    _fairID = fairID;
     _networkModel = [[ARFairNetworkModel alloc] init];
+
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)coder {
+    self = [super initWithCoder:coder];
+    if (!self) {
+        return nil;
+    }
+
+    _networkModel = [[ARFairNetworkModel alloc] init];
+    _name = [coder decodeObjectForKey:@"name"];
+    _defaultProfileID = [coder decodeObjectForKey:@"defaultProfileID"];
+    _fairID = [coder decodeObjectForKey:@"fairID"];
+    _maps = [coder decodeObjectForKey:@"maps"];
+    _shows = [coder decodeObjectForKey:@"shows"];
+    _city = [coder decodeObjectForKey:@"city"];
+    _state = [coder decodeObjectForKey:@"state"];
+    _startDate = [coder decodeObjectForKey:@"startDate"];
+    _endDate = [coder decodeObjectForKey:@"endDate"];
+    _organizer = [coder decodeObjectForKey:@"organizer"];
+    _partnersCount = [coder decodeIntegerForKey:@"partnersCount"];
+
+    _shows = [coder decodeObjectForKey:@"shows"];
+    _imageURLs = [coder decodeObjectForKey:@"imageURLs"];
+    _bannerURLs = [coder decodeObjectForKey:@"bannerURLs"];
+    _showsFeed = [coder decodeObjectForKey:@"shoesFeed"];
+
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:self.name forKey:@"name"];
+    [coder encodeObject:self.defaultProfileID forKey:@"defaultProfileID"];
+    [coder encodeObject:self.fairID forKey:@"fairID"];
+    [coder encodeObject:self.maps forKey:@"maps"];
+    [coder encodeObject:self.shows forKey:@"shows"];
+    [coder encodeObject:self.city forKey:@"city"];
+    [coder encodeObject:self.state forKey:@"state"];
+    [coder encodeObject:self.startDate forKey:@"startDate"];
+    [coder encodeObject:self.endDate forKey:@"endDate"];
+    [coder encodeObject:self.organizer forKey:@"organizer"];
+    [coder encodeInteger:self.partnersCount forKey:@"partnersCount"];
+
+    [coder encodeObject:self.shows forKey:@"shows"];
+    [coder encodeObject:self.imageURLs forKey:@"imageURLs"];
+    [coder encodeObject:self.bannerURLs forKey:@"bannerURLs"];
+    [coder encodeObject:self.showsFeed forKey:@"showsFeed"];
+}
+
+- (instancetype)initWithFairID:(NSString *)fairID
+{
+    self = [self init];
+
+    _fairID = fairID;
 
     return self;
 }
 
 - (void)updateFair:(void(^)(void))success
 {
-    [self.networkModel getFairInfo:self.fairID success:^(Fair *fair) {
+    [self.networkModel getFairInfo:self success:^(Fair *fair) {
         success();
     } failure:^(NSError *error) {
         success();

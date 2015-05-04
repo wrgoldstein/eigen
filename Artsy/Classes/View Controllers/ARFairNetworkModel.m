@@ -4,24 +4,36 @@
 
 - (void)getFairInfo:(Fair *)fair success:(void (^)(Fair *))success failure:(void (^)(NSError *))failure
 {
-    [ArtsyAPI getFairInfo:fair.fairID success:^(Fair *fair) {
+    [self getFairInfoWithID:fair.fairID success:^(Fair *newFair) {
 
         NSArray *tempMaps = fair.maps;
-        [fair mergeValuesForKeysFromModel:fair];
+        [fair mergeValuesForKeysFromModel:newFair];
         fair.maps = tempMaps;
 
         success(fair);
 
-    } failure:failure];
+    } failure:^(NSError *error) {
+
+
+        failure(error);
+    }];
 }
 
-- (void)getPostsForFairWithTimeline:(ARFeedTimeline *)timeline success:(void (^)(ARFeedTimeline *))success failure:(void (^)(NSError *))failure
+- (void)getFairInfoWithID:(NSString *)fairID success:(void (^)(Fair *))success failure:(void (^)(NSError *))failure
 {
-    @weakify(timeline);
-    [timeline getNewItems:^{
-        @strongify(timeline);
-        success(timeline);
-    } failure:failure];
+    [ArtsyAPI getFairInfo:fairID success:success failure:failure];
+}
+
+- (void)getPostsForFair:(Fair *)fair success:(void (^)(ARFeedTimeline *))success
+{
+    ARFairOrganizerFeed *postsFeed = [[ARFairOrganizerFeed alloc] initWithFairOrganizer:fair.organizer];
+    ARFeedTimeline *postsFeedTimeline = [[ARFeedTimeline alloc] initWithFeed:postsFeed];
+
+    [postsFeedTimeline getNewItems:^{
+        success(postsFeedTimeline);
+    } failure:^(NSError *error) {
+        success (postsFeedTimeline);
+    }];
 }
 
 - (void)getOrderedSetsForFair:(Fair *)fair success:(void (^)(NSMutableDictionary *set))success failure:(void (^)(NSError *))failure
@@ -31,11 +43,11 @@
 
 - (void)getMapInfoForFair:(Fair *)fair success:(void (^)(NSArray *))success failure:(void (^)(NSError *))failure
 {
-    @weakify(self);
+    @weakify(fair);
 
     [ArtsyAPI getMapInfoForFair:fair success:^(NSArray *maps) {
-        @strongify(self);
-        if (!self) { return; }
+        @strongify(fair);
+        if (!fair) { return; }
         fair.maps = maps;
         if (success) {
             success(maps);
@@ -50,35 +62,39 @@
 
 @end
 
-
+@interface ARFeedTimeline (Stubs)
+@property (nonatomic, strong, readwrite) NSMutableOrderedSet *items;
+@end
 
 @implementation ARStubbedFairNetworkModel
 
-- (void)getFairInfo:(Fair *)fair success:(void (^)(Fair *))success failure:(void (^)(NSError *))failure
+- (void)getFairInfoWithID:(NSString *)fairID success:(void (^)(Fair *))success failure:(void (^)(NSError *))failure
 {
-    if (self.fair) {
-        success(self.fair);
-        return;
-    }
-
-    if (fair) {
-        success(fair);
-        return;
-    }
-
-    failure(nil);
+    success(self.fair);
 }
 
-- (void)getPostsForFairWithTimeline:(ARFeedTimeline *)timeline success:(void (^)(ARFeedTimeline *))success failure:(void (^)(NSError *))failure
+- (void)getPostsForFair:(Fair *)fair success:(void (^)(ARFeedTimeline *))success
 {
-    if (self.timeline) {
-        success(self.timeline);
-        return;
-    }
+    ARFairOrganizerFeed *postsFeed = [[ARFairOrganizerFeed alloc] initWithFairOrganizer:fair.organizer];
+    ARFeedTimeline *postsFeedTimeline = [[ARFeedTimeline alloc] initWithFeed:postsFeed];
 
-    if (timeline) {
-        success(timeline);
-        return;
+    if (self.postFeedItems) {
+        postsFeedTimeline.items = [NSMutableOrderedSet orderedSetWithArray:self.postFeedItems];
+    }
+    success(postsFeedTimeline);
+}
+
+- (void)getOrderedSetsForFair:(Fair *)fair success:(void (^)(NSMutableDictionary *sets))success failure:(void (^)(NSError *))failure
+{
+    if (self.orderedSets) {
+
+        NSMutableDictionary *orderedSetsByKey = [[NSMutableDictionary alloc] init];
+        for (OrderedSet * orderedSet in self.orderedSets) {
+            NSArray *sets = orderedSetsByKey[orderedSet.key] ?: @[];
+            orderedSetsByKey[orderedSet.key] = [sets arrayByAddingObject:orderedSet];
+        }
+
+        success(orderedSetsByKey);
     }
 
     failure(nil);
@@ -86,21 +102,24 @@
 
 - (void)getMapInfoForFair:(Fair *)fair success:(void (^)(NSArray *))success failure:(void (^)(NSError *))failure
 {
-    @weakify(self);
+    if (self.maps) {
+        fair.maps = self.maps;
+        success(fair.maps);
+        return;
+    }
 
-    [ArtsyAPI getMapInfoForFair:fair success:^(NSArray *maps) {
-        @strongify(self);
-        if (!self) { return; }
-        fair.maps = maps;
-        if (success) {
-            success(maps);
-        }
-    } failure:failure];
+    failure(nil);
+
 }
 
 - (void)getShowFeedItems:(ARFairShowFeed *)feed success:(void (^)(NSOrderedSet *))success failure:(void (^)(NSError *))failure
 {
-    [feed getFeedItemsWithCursor:feed.cursor success:success failure:failure];
+    if (self.showFeedItems) {
+        success([NSOrderedSet orderedSetWithArray:self.showFeedItems]);
+        return;
+    }
+
+    failure(nil);
 }
 
 

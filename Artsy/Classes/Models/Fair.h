@@ -21,7 +21,7 @@
 - (BOOL)usesBrandedBanners;
 - (NSString *)bannerAddress;
 
-@property (nonatomic, strong, readonly) ARFairNetworkModel *networkModel;
+@property (nonatomic, strong, readwrite) ARFairNetworkModel *networkModel;
 @property (nonatomic, copy, readonly) NSString *name;
 @property (nonatomic, copy, readonly) NSString *defaultProfileID;
 @property (nonatomic, copy, readonly) NSString *fairID;

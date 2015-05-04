@@ -1,6 +1,5 @@
 #import "ARFairMapPreviewButton.h"
 #import "ARFairMapPreview.h"
-#import "Map.h"
 
 @interface ARFairMapPreviewButton ()
 @end

@@ -1,7 +1,6 @@
 #import "ARFairAwareObject.h"
 #import "ARFairArtistViewController.h"
 #import "ARFairArtistNetworkModel.h"
-#import "Map.h"
 
 @interface ARFairArtistViewController (Tests)
 @property (nonatomic, assign, readwrite) BOOL shouldAnimate;
@@ -17,19 +16,21 @@ void (^itlooksCorrectWithArtist)(Artist* artist, NSArray *maps) = ^void(Artist *
         @"name" : @"The Armory Show",
         @"organizer" : @{ @"profile_id" : @"fair-profile-id" },
     }];
-    
-    id fairMock = [OCMockObject partialMockForObject:fair];
-    NSArray *maps = [mapsJSON map:^Map*(NSDictionary *mapJSON) { return [Map modelWithJSON:mapJSON]; }];
-    [[[fairMock stub] andReturn:maps] maps];
+
+    ARStubbedFairNetworkModel *fairNetworkModel = [[ARStubbedFairNetworkModel alloc] init];
+    fairNetworkModel.maps = [mapsJSON map:^Map*(NSDictionary *mapJSON) { return [Map modelWithJSON:mapJSON]; }];
+
+    fair.networkModel = fairNetworkModel;
 
     [OHHTTPStubs stubJSONResponseAtPath:@"/api/v1/maps" withParams:@{ @"fair_id" : @"fair-id" } withResponse:mapsJSON];
 
-    ARStubbedFairArtistNetworkModel *model = [[ARStubbedFairArtistNetworkModel alloc] init];
-    model.artist = artist;
-    model.shows = @[];
 
-    ARFairArtistViewController *fairArtistVC = [[ARFairArtistViewController alloc] initWithArtistID:@"some-artist" fair:fairMock];
-    fairArtistVC.networkModel = model;
+    ARStubbedFairArtistNetworkModel *fairArtistNetworkModel = [[ARStubbedFairArtistNetworkModel alloc] init];
+    fairArtistNetworkModel.artist = artist;
+    fairArtistNetworkModel.shows = @[];
+
+    ARFairArtistViewController *fairArtistVC = [[ARFairArtistViewController alloc] initWithArtistID:@"some-artist" fair:fair];
+    fairArtistVC.networkModel = fairArtistNetworkModel;
     [fairArtistVC ar_presentWithFrame:CGRectMake(0, 0, 320, 480)];
     expect(fairArtistVC.view).will.haveValidSnapshot();
 

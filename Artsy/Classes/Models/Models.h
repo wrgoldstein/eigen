@@ -20,6 +20,7 @@
 #import "Video.h"
 #import "Follow.h"
 #import "PartnerShowFairLocation.h"
+#import "Map.h"
 #import "MapFeature.h"
 #import "SystemTime.h"
 #import "Location.h"

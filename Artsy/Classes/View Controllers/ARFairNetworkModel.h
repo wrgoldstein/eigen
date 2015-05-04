@@ -1,11 +1,13 @@
 @interface ARFairNetworkModel : NSObject
-- (void)getFairInfo:(NSString *)fairID success:(void (^)(Fair *fair))success failure:(void (^)(NSError *error))failure;
+- (void)getFairInfo:(Fair *)fair success:(void (^)(Fair *fair))success failure:(void (^)(NSError *error))failure;
 
-- (void)getShowFeedItems:(ARFairShowFeed *)feed success:(void (^)(NSOrderedSet *))success failure:(void (^)(NSError *))failure;
+- (void)getFairInfoWithID:(NSString *)fairID success:(void (^)(Fair *fair))success failure:(void (^)(NSError *error))failure;
 
-- (void)getPostsForFairWithTimeline:(ARFeedTimeline *)timeline success:(void (^)(ARFeedTimeline *))success failure:(void (^)(NSError *error))failure;
+- (void)getShowFeedItems:(ARFairShowFeed *)feed success:(void (^)(NSOrderedSet *orderedSet))success failure:(void (^)(NSError *error))failure;
 
-- (void)getOrderedSetsForFair:(Fair *)fair success:(void (^)(NSMutableDictionary *))success failure:(void (^)(NSError *error))failure;
+- (void)getPostsForFair:(Fair *)fair success:(void (^)(ARFeedTimeline *feedTimeline))success;
+
+- (void)getOrderedSetsForFair:(Fair *)fair success:(void (^)(NSMutableDictionary *orderedSets))success failure:(void (^)(NSError *error))failure;
 
 - (void)getMapInfoForFair:(Fair *)fair success:(void (^)(NSArray *maps))success failure:(void (^)(NSError *error))failure;
 
@@ -13,8 +15,10 @@
 
 @interface ARStubbedFairNetworkModel : ARFairNetworkModel
 
-@property (nonatomic, strong, readwrite) Fair *fair;
-@property (nonatomic, strong, readwrite) ARFairShowFeed *feed;
-@property (nonatomic, strong, readwrite) ARFeedTimeline *timeline;
+@property (nonatomic, weak, readwrite) Fair *fair;
+@property (nonatomic, strong, readwrite) NSArray *showFeedItems;
+@property (nonatomic, strong, readwrite) NSArray *postFeedItems;
+@property (nonatomic, strong, readwrite) NSArray *orderedSets;
+@property (nonatomic, strong, readwrite) NSArray *maps;
 
 @end
