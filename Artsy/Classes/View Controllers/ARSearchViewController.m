@@ -202,7 +202,9 @@
 
 - (void)setSearchQuery:(NSString *)text animated:(BOOL)animated
 {
-    if (self.searchRequest) { [self.searchRequest cancel]; }
+    if (self.searchRequest) {
+        [self.searchRequest cancel];
+    }
 
     if (text.length == 0) {
         [self stopSearching];

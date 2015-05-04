@@ -489,6 +489,7 @@
 		D301A1C21AD59BD100EA9E49 /* ARBackButtonCallbackManagerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D301A1C11AD59BD100EA9E49 /* ARBackButtonCallbackManagerTests.m */; };
 		D33AF4FF1ACF08E1009C053C /* ARBackButtonCallbackManager.m in Sources */ = {isa = PBXBuildFile; fileRef = D33AF4FE1ACF08E1009C053C /* ARBackButtonCallbackManager.m */; };
 		D35D9D5C1ACB4FF800E67A1D /* ARArtworkTitleLabelTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D35D9D5B1ACB4FF800E67A1D /* ARArtworkTitleLabelTests.m */; };
+		D37CBC4B1AF2C62E00A69019 /* ARFairNetworkModelTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D37CBC4A1AF2C62E00A69019 /* ARFairNetworkModelTests.m */; };
 		D37E4CFB1A92AC5A00023E2C /* ARAnnotatedMapView.m in Sources */ = {isa = PBXBuildFile; fileRef = D37E4CFA1A92AC5A00023E2C /* ARAnnotatedMapView.m */; };
 		D37E4CFD1A92B29F00023E2C /* ARAnnotatedMapViewTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D37E4CFC1A92B29F00023E2C /* ARAnnotatedMapViewTests.m */; };
 		D39E874F1AB0F97A006B5BE9 /* ARBrowseNetworkModel.m in Sources */ = {isa = PBXBuildFile; fileRef = D39E874E1AB0F97A006B5BE9 /* ARBrowseNetworkModel.m */; };
@@ -1461,6 +1462,7 @@
 		D33AF4FD1ACF08E1009C053C /* ARBackButtonCallbackManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ARBackButtonCallbackManager.h; path = Artsy/Classes/Utils/ARBackButtonCallbackManager.h; sourceTree = SOURCE_ROOT; };
 		D33AF4FE1ACF08E1009C053C /* ARBackButtonCallbackManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ARBackButtonCallbackManager.m; path = Artsy/Classes/Utils/ARBackButtonCallbackManager.m; sourceTree = SOURCE_ROOT; };
 		D35D9D5B1ACB4FF800E67A1D /* ARArtworkTitleLabelTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARArtworkTitleLabelTests.m; sourceTree = "<group>"; };
+		D37CBC4A1AF2C62E00A69019 /* ARFairNetworkModelTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARFairNetworkModelTests.m; sourceTree = "<group>"; };
 		D37E4CF91A92AC5A00023E2C /* ARAnnotatedMapView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ARAnnotatedMapView.h; sourceTree = "<group>"; };
 		D37E4CFA1A92AC5A00023E2C /* ARAnnotatedMapView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARAnnotatedMapView.m; sourceTree = "<group>"; };
 		D37E4CFC1A92B29F00023E2C /* ARAnnotatedMapViewTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ARAnnotatedMapViewTests.m; sourceTree = "<group>"; };
@@ -2092,6 +2094,7 @@
 			isa = PBXGroup;
 			children = (
 				3CAA413118D8CC32000EE867 /* ARFairFavoritesNetworkModelTests.m */,
+				D37CBC4A1AF2C62E00A69019 /* ARFairNetworkModelTests.m */,
 				E655E4B7194B4BEF00F2B7DA /* ARArtworkFavoritesNetworkModelTests.m */,
 				5E0AEB7919B9EF57009F34DE /* ARShowNetworkModelTests.m */,
 			);
@@ -4635,6 +4638,7 @@
 				60327DEA198933610075B399 /* ARTestTopMenuNavigationDataSource.m in Sources */,
 				3CA1E82518846B3A003C622D /* SaleTests.m in Sources */,
 				60CEA78119B6254800CC3A91 /* ARStubbedArtistNetworkModel.m in Sources */,
+				D37CBC4B1AF2C62E00A69019 /* ARFairNetworkModelTests.m in Sources */,
 				5E9A782019068EDF00734E1B /* ARProfileViewControllerTests.m in Sources */,
 				E6EC246118F7069300C89192 /* PartnerTests.m in Sources */,
 				3CD3679F189ADBEF00285DF7 /* ARPostFeedItemLinkViewTests.m in Sources */,

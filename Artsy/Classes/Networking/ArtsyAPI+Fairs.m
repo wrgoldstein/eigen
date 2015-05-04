@@ -1,5 +1,4 @@
 #import "ArtsyAPI+Private.h"
-#import "Map.h"
 
 @implementation ArtsyAPI (Fairs)
 
