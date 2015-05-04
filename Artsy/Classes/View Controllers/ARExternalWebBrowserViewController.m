@@ -99,4 +99,12 @@
     return nil;
 }
 
+- (void)dealloc
+{
+    [self.webView loadHTMLString:@"" baseURL:nil];
+    [self.webView stopLoading];
+    self.webView.delegate = nil;
+    [self.webView removeFromSuperview];
+}
+
 @end
